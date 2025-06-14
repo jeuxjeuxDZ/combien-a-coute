@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jeu Prix par Pays</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: #fff;
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    margin: 20px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  }
+  select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    cursor: pointer;
+    box-shadow: 0 0 8px #fff7;
+  }
+  #budgetDisplay {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px #0008;
+  }
+  #products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+    gap: 15px;
+    width: 90%;
+    max-width: 1000px;
+  }
+  .product {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #0004;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease;
+  }
+  .product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 18px #fff9;
+  }
+  .product-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #ffd700;
+  }
+  .product-price {
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #e0e0e0;
+  }
+  .buy-btn {
+    padding: 10px;
+    font-weight: 600;
+    background: #ff7f50;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .buy-btn:hover {
+    background: #ff5722;
+  }
+  #ticket {
+    white-space: pre-wrap;
+    background: rgba(0,0,0,0.5);
+    margin: 30px 0 50px 0;
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    font-family: monospace;
+    font-size: 1rem;
+    box-shadow: 0 0 15px #000a;
+    color: #ffd;
+  }
+  footer {
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+</style>
+</head>
+<body>
+
+<header>Combien ça coûte ? - Jeu Prix par Pays</header>
+
+<select id="country">
+  <option value="">-- Choisis un pays --</option>
+  <option value="algerie">Algérie</option>
+  <option value="maroc">Maroc</option>
+  <option value="tunisie">Tunisie</option>
+  <option value="turquie">Turquie</option>
+  <option value="bresil">Brésil</option>
+  <option value="espagne">Espagne</option>
+  <option value="monaco">Monaco</option>
+  <option value="senegal">Sénégal</option>
+</select>
+
+<div id="budgetDisplay"></div>
+<div id="products"></div>
+
+<pre id="ticket">Aucun achat effectué.</pre>
+
+<footer>© 2025 - Yasmine's Game</footer>
+
+<script>
+  const data = {
+    algerie: [
+      {name: "Pain traditionnel", price: 15, currency: "DA"},
+      {name: "Litre de lait", price: 25, currency: "DA"},
+      {name: "Bouteille d'eau minérale", price: 35, currency: "DA"},
+      {name: "Recharge téléphonique 200 DA", price: 200, currency: "DA"},
+      {name: "Tomates (1kg)", price: 80, currency: "DA"},
+      {name: "Oignons (1kg)", price: 70, currency: "DA"},
+      {name: "Riz (1kg)", price: 120, currency: "DA"},
+      {name: "Poulet (1kg)", price: 350, currency: "DA"},
+      {name: "Œufs (12)", price: 300, currency: "DA"},
+      {name: "Fromage local (500g)", price: 450, currency: "DA"},
+      {name: "Coca-Cola (1.5L)", price: 150, currency: "DA"},
+      {name: "Pain de mie", price: 200, currency: "DA"},
+      {name: "Yaourt (1 pot)", price: 100, currency: "DA"},
+      {name: "Beurre (250g)", price: 350, currency: "DA"},
+      {name: "Sucre (1kg)", price: 180, currency: "DA"},
+      {name: "Café (250g)", price: 500, currency: "DA"},
+      {name: "Farine (1kg)", price: 200, currency: "DA"},
+      {name: "Huile (1L)", price: 400, currency: "DA"},
+      {name: "Pommes (1kg)", price: 300, currency: "DA"},
+      {name: "Oranges (1kg)", price: 250, currency: "DA"},
+    ],
+    maroc: [
+      {name: "Khobz marocain", price: 1.5, currency: "MAD"},
+      {name: "Litre de lait", price: 7, currency: "MAD"},
+      {name: "Bouteille d'eau minérale", price: 5, currency: "MAD"},
+      {name: "Recharge téléphonique 20 MAD", price: 20, currency: "MAD"},
+      {name: "Tomates (1kg)", price: 10, currency: "MAD"},
+      {name: "Oignons (1kg)", price: 8, currency: "MAD"},
+      {name: "Riz (1kg)", price: 12, currency: "MAD"},
+      {name: "Poulet (1kg)", price: 30, currency: "MAD"},
+      {name: "Œufs (12)", price: 18, currency: "MAD"},
+      {name: "Fromage local (500g)", price: 25, currency: "MAD"},
+      {name: "Coca-Cola (1.5L)", price: 12, currency: "MAD"},
+      {name: "Pain de mie", price: 10, currency: "MAD"},
+      {name: "Yaourt (1 pot)", price: 6, currency: "MAD"},
+      {name: "Beurre (250g)", price: 15, currency: "MAD"},
+      {name: "Sucre (1kg)", price: 9, currency: "MAD"},
+      {name: "Café (250g)", price: 20, currency: "MAD"},
+      {name: "Farine (1kg)", price: 10, currency: "MAD"},
+      {name: "Huile (1L)", price: 18, currency: "MAD"},
+      {name: "Pommes (1kg)", price: 14, currency: "MAD"},
+      {name: "Oranges (1kg)", price: 12, currency: "MAD"},
+    ],
+    tunisie: [
+      {name: "Pain tunisien", price: 0.5, currency: "TND"},
+      {name: "Litre de lait", price: 2, currency: "TND"},
+      {name: "Bouteille d'eau minérale", price: 1.2, currency: "TND"},
+      {name: "Recharge téléphonique 5 TND", price: 5, currency: "TND"},
+      {name: "Tomates (1kg)", price: 3, currency: "TND"},
+      {name: "Oignons (1kg)", price: 2.5, currency: "TND"},
+      {name: "Riz (1kg)", price: 3.5, currency: "TND"},
+      {name: "Poulet (1kg)", price: 8, currency: "TND"},
+      {name: "Œufs (12)", price: 6, currency: "TND"},
+      {name: "Fromage local (500g)", price: 7, currency: "TND"},
+      {name: "Coca-Cola (1.5L)", price: 3, currency: "TND"},
+      {name: "Pain de mie", price: 2, currency: "TND"},
+      {name: "Yaourt (1 pot)", price: 1.5, currency: "TND"},
+      {name: "Beurre (250g)", price: 3.5, currency: "TND"},
+      {name: "Sucre (1kg)", price: 1.8, currency: "TND"},
+      {name: "Café (250g)", price: 5, currency: "TND"},
+      {name: "Farine (1kg)", price: 2, currency: "TND"},
+      {name: "Huile (1L)", price: 4, currency: "TND"},
+      {name: "Pommes (1kg)", price: 3, currency: "TND"},
+      {name: "Oranges (1kg)", price: 2.5, currency: "TND"},
+    ],
+    turquie: [
+      {name: "Simit turc", price: 10, currency: "TRY"},
+      {name: "Litre de lait", price: 18, currency: "TRY"},
+      {name: "Bouteille d'eau minérale", price: 7, currency: "TRY"},
+      {name: "Recharge téléphonique 50 TRY", price: 50, currency: "TRY"},
+      {name: "Tomates (1kg)", price: 15, currency: "TRY"},
+      {name: "Oignons (1kg)", price: 12, currency: "TRY"},
+      {name: "Riz (1kg)", price: 20, currency: "TRY"},
+      {name: "Poulet (1kg)", price: 45, currency: "TRY"},
+      {name: "Œufs (12)", price: 30, currency: "TRY"},
+      {name: "Fromage local (500g)", price: 40, currency: "TRY"},
+      {name: "Coca-Cola (1.5L)", price: 15, currency: "TRY"},
+      {name: "Pain de mie", price: 10, currency: "TRY"},
+      {name: "Yaourt (1 pot)", price: 8, currency: "TRY"},
+      {name: "Beurre (250g)", price: 20, currency: "TRY"},
+      {name: "Sucre (1kg)", price: 10, currency: "TRY"},
+      {name: "Café (250g)", price: 35, currency: "TRY"},
+      {name: "Farine (1kg)", price: 15, currency: "TRY"},
+      {name: "Huile (1L)", price: 25, currency: "TRY"},
+      {name: "Pommes (1kg)", price: 18, currency: "TRY"},
+      {name: "Oranges (1kg)", price: 16, currency: "TRY"},
+    ],
+    bresil: [
+      {name: "Pão francês", price: 1.3, currency: "BRL"},
+      {name: "Litre de lait", price: 4.5, currency: "BRL"},
+      {name: "Bouteille d'eau minérale", price: 2, currency: "BRL"},
+      {name: "Recharge téléphonique 20 BRL", price: 20, currency: "BRL"},
+      {name: "Tomates (1kg)", price: 5, currency: "BRL"},
+      {name: "Oignons (1kg)", price: 4, currency: "BRL"},
+      {name: "Riz (1kg)", price: 6, currency: "BRL"},
+      {name: "Poulet (1kg)", price: 15, currency: "BRL"},
+      {name: "Œufs (12)", price: 8, currency: "BRL"},
+      {name: "Fromage local (500g)", price: 10, currency: "BRL"},
+      {name: "Coca-Cola (1.5L)", price: 6, currency: "BRL"},
+      {name: "Pain de mie", price: 5, currency: "BRL"},
+      {name: "Yaourt (1 pot)", price: 3, currency: "BRL"},
+      {name: "Beurre (250g)", price: 8, currency: "BRL"},
+      {name: "Sucre (1kg)", price: 4, currency: "BRL"},
+      {name: "Café (250g)", price: 12, currency: "BRL"},
+      {name: "Farine (1kg)", price: 5, currency: "BRL"},
+      {name: "Huile (1L)", price: 10, currency: "BRL"},
+      {name: "Pommes (1kg)", price: 6, currency: "BRL"},
+      {name: "Oranges (1kg)", price: 5, currency: "BRL"},
+    ],
+    espagne: [
+      {name: "Baguette", price: 1.2, currency: "EUR"},
+      {name: "Litre de lait", price: 0.9, currency: "EUR"},
+      {name: "Bouteille d'eau minérale", price: 0.8, currency: "EUR"},
+      {name: "Recharge téléphonique 10 EUR", price: 10, currency: "EUR"},
+      {name: "Tomates (1kg)", price: 2.3, currency: "EUR"},
+      {name: "Oignons (1kg)", price: 1.9, currency: "EUR"},
+      {name: "Riz (1kg)", price: 1.5, currency: "EUR"},
+      {name: "Poulet (1kg)", price: 5.5, currency: "EUR"},
+      {name: "Œufs (12)", price: 2.5, currency: "EUR"},
+      {name: "Fromage local (500g)", price: 3.5, currency: "EUR"},
+      {name: "Coca-Cola (1.5L)", price: 1.3, currency: "EUR"},
+      {name: "Pain de mie", price: 1.8, currency: "EUR"},
+      {name: "Yaourt (1 pot)", price: 0.7, currency: "EUR"},
+      {name: "Beurre (250g)", price: 2.8, currency: "EUR"},
+      {name: "Sucre (1kg)", price: 1.4, currency: "EUR"},
+      {name: "Café (250g)", price: 3, currency: "EUR"},
+      {name: "Farine (1kg)", price: 1.2, currency: "EUR"},
+      {name: "Huile (1L)", price: 4.2, currency: "EUR"},
+      {name: "Pommes (1kg)", price: 2.2, currency: "EUR"},
+      {name: "Oranges (1kg)", price: 1.9, currency: "EUR"},
+    ],
+    monaco: [
+      {name: "Baguette de pain", price: 1.5, currency: "EUR"},
+      {name: "Litre de lait", price: 1.3, currency: "EUR"},
+      {name: "Bouteille d'eau minérale", price: 1, currency: "EUR"},
+      {name: "Recharge téléphonique 20 EUR", price: 20, currency: "EUR"},
+      {name: "Tomates (1kg)", price: 3, currency: "EUR"},
+      {name: "Oignons (1kg)", price: 2.7, currency: "EUR"},
+      {name: "Riz (1kg)", price: 2.5, currency: "EUR"},
+      {name: "Poulet (1kg)", price: 8, currency: "EUR"},
+      {name: "Œufs (12)", price: 4.5, currency: "EUR"},
+      {name: "Fromage local (500g)", price: 7, currency: "EUR"},
+      {name: "Coca-Cola (1.5L)", price: 2, currency: "EUR"},
+      {name: "Pain de mie", price: 2, currency: "EUR"},
+      {name: "Yaourt (1 pot)", price: 1.5, currency: "EUR"},
+      {name: "Beurre (250g)", price: 3, currency: "EUR"},
+      {name: "Sucre (1kg)", price: 1.8, currency: "EUR"},
+      {name: "Café (250g)", price: 5, currency: "EUR"},
+      {name: "Farine (1kg)", price: 2, currency: "EUR"},
+      {name: "Huile (1L)", price: 4, currency: "EUR"},
+      {name: "Pommes (1kg)", price: 3, currency: "EUR"},
+      {name: "Oranges (1kg)", price: 2.5, currency: "EUR"},
+    ],
+    senegal: [
+      {name: "Pain local", price: 150, currency: "XOF"},
+      {name: "Litre de lait", price: 500, currency: "XOF"},
+      {name: "Bouteille d'eau minérale", price: 300, currency: "XOF"},
+      {name: "Recharge téléphonique 1000 XOF", price: 1000, currency: "XOF"},
+      {name: "Tomates (1kg)", price: 400, currency: "XOF"},
+      {name: "Oignons (1kg)", price: 350, currency: "XOF"},
+      {name: "Riz (1kg)", price: 600, currency: "XOF"},
+      {name: "Poulet (1kg)", price: 1500, currency: "XOF"},
+      {name: "Œufs (12)", price: 1200, currency: "XOF"},
+      {name: "Fromage local (500g)", price: 1700, currency: "XOF"},
+      {name: "Coca-Cola (1.5L)", price: 800, currency: "XOF"},
+      {name: "Pain de mie", price: 700, currency: "XOF"},
+      {name: "Yaourt (1 pot)", price: 400, currency: "XOF"},
+      {name: "Beurre (250g)", price: 900, currency: "XOF"},
+      {name: "Sucre (1kg)", price: 500, currency: "XOF"},
+      {name: "Café (250g)", price: 1500, currency: "XOF"},
+      {name: "Farine (1kg)", price: 700, currency: "XOF"},
+      {name: "Huile (1L)", price: 1200, currency: "XOF"},
+      {name: "Pommes (1kg)", price: 600, currency: "XOF"},
+      {name: "Oranges (1kg)", price: 550, currency: "XOF"},
+    ]
+  };
+
+  const budgets = {
+    algerie: 5000,
+    maroc: 300,
+    tunisie: 50,
+    turquie: 500,
+    bresil: 80,
+    espagne: 50,
+    monaco: 70,
+    senegal: 8000,
+  };
+
+  const countrySelect = document.getElementById('country');
+  const budgetDisplay = document.getElementById('budgetDisplay');
+  const productsDiv = document.getElementById('products');
+  const ticket = document.getElementById('ticket');
+
+  let budget = 0;
+  let currentCountry = '';
+  let cart = [];
+
+  function updateBudgetDisplay() {
+    budgetDisplay.textContent = `Budget restant : ${budget.toLocaleString()} ${budgets[currentCountry] ? data[currentCountry][0].currency : ''}`;
+  }
+
+  function updateTicket() {
+    if (cart.length === 0) {
+      ticket.textContent = "Aucun achat effectué.";
+      return;
+    }
+    let total = 0;
+    let currency = cart[0].currency;
+    let text = "Articles achetés :\n\n";
+    cart.forEach(item => {
+      text += `- ${item.name} x${item.qty} : ${(item.price * item.qty).toLocaleString()} ${currency}\n`;
+      total += item.price * item.qty;
+    });
+    text += `\nTotal dépensé : ${total.toLocaleString()} ${currency}\n`;
+    text += `Budget restant : ${budget.toLocaleString()} ${currency}`;
+    ticket.textContent = text;
+  }
+
+  function renderProducts(country) {
+    productsDiv.innerHTML = '';
+    cart = [];
+    ticket.textContent = 'Aucun achat effectué.';
+
+    if (!country || !data[country]) {
+      budgetDisplay.textContent = '';
+      return;
+    }
+    currentCountry = country;
+    budget = budgets[country];
+    updateBudgetDisplay();
+
+    data[country].forEach((item, index) => {
+      const prodDiv = document.createElement('div');
+      prodDiv.className = 'product';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'product-name';
+      nameEl.textContent = item.name;
+
+      const priceEl = document.createElement('div');
+      priceEl.className = 'product-price';
+      priceEl.textContent = `${item.price.toLocaleString()} ${item.currency}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'buy-btn';
+      btn.textContent = 'Acheter';
+      btn.onclick = () => {
+        if (budget >= item.price) {
+          budget -= item.price;
+          let existing = cart.find(p => p.name === item.name);
+          if (existing) {
+            existing.qty++;
+          } else {
+            cart.push({...item, qty: 1});
+          }
+          updateBudgetDisplay();
+          updateTicket();
+        } else {
+          alert("Budget insuffisant pour cet article !");
+        }
+      };
+
+      prodDiv.appendChild(nameEl);
+      prodDiv.appendChild(priceEl);
+      prodDiv.appendChild(btn);
+
+      productsDiv.appendChild(prodDiv);
+    });
+  }
+
+  countrySelect.addEventListener('change', e => {
+    renderProducts(e.target.value);
+  });
+</script>
+
+</body>
+</html>
